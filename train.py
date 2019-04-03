@@ -24,13 +24,17 @@ def one_hot(num,len):
 
 #generates next-state from action and observation
 def state_generator(action,obs):
+    i=0
     input_vector = []
     if action is None:
         print ('None')
         sys.exit()
-    for user_i in range(action.size):
-        input_vector_i = one_hot(action[user_i],NUM_CHANNELS+1)
-        channel_alloc = obs[-1]
+    for user_i in range(action.size):#input组成部分
+        input_vector_i = one_hot(action[user_i],NUM_CHANNELS+1)#[0,1,0]表示采用channel2
+        i=i+1
+        #print(input_vector_i,np.size(input_vector_i))
+        channel_alloc = obs[-1]#[0,1] channel 容量,1表示channel被使用
+        #print(channel_alloc)
         input_vector_i = np.append(input_vector_i,channel_alloc)
         input_vector_i = np.append(input_vector_i,int(obs[user_i][0]))    #ACK
         input_vector.append(input_vector_i)
@@ -56,7 +60,7 @@ beta = 1                                #Annealing constant for Monte - Carlo
 tf.reset_default_graph()
 
 #initializing the environment
-env = env_network(NUM_USERS,NUM_CHANNELS,ATTEMPT_PROB)
+env = env_network(NUM_USERS,NUM_CHANNELS, ATTEMPT_PROB)
 
 #initializing deep Q network
 mainQN = QNetwork(name='main',hidden_size=hidden_size,learning_rate=learning_rate,step_size=step_size,state_size=state_size,action_size=action_size)
@@ -292,19 +296,20 @@ for time_step in range(TIME_SLOTS):
 
             #action[each_user] = np.argmax(Qs,axis=1)
             if time_step % interval == 0:
-                print (state_vector[:,each_user])
-                print (Qs)
-                print (prob, np.sum(np.exp(beta*Qs)))
+                print ('state ',state_vector[:,each_user])
+                print ('Qs ' ,Qs)
+                print ('prob && sum(np.exp(beta*Qs)',prob, np.sum(np.exp(beta*Qs)))
+                pass
 
     # taking action as predicted from the q values and receiving the observation from thr envionment
     obs = env.step(action)           # obs is a list of tuple with [(ACK,REW) for each user ,(CHANNEL_RESIDUAL_CAPACITY_VECTOR)] 
     
-    print (action)
-    print (obs)
+    # print ('action',action)
+    # print ('obs',obs)
 
     # Generate next state from action and observation 
     next_state = state_generator(action,obs)
-    print (next_state)
+    # print ('next_state ',next_state)
 
     # reward for all users given by environment
     reward = [i[1] for i in obs[:NUM_USERS]]
@@ -332,7 +337,7 @@ for time_step in range(TIME_SLOTS):
 
 
     total_rewards.append(sum_r)
-    print (reward)
+    print ('reward is ',reward)
     
     
     # add new experiences into the memory buffer as (state, action , reward , next_state) for training
@@ -394,11 +399,11 @@ for time_step in range(TIME_SLOTS):
     if  time_step %5000 == 4999:
         plt.figure(1)
         plt.subplot(211)
-        #plt.plot(np.arange(1000),total_rewards,"r+")
-        #plt.xlabel('Time Slots')
-        #plt.ylabel('total rewards')
-        #plt.title('total rewards given per time_step')
-        #plt.show()
+        # plt.plot(np.arange(1000),total_rewards,"r+")
+        # plt.xlabel('Time Slots')
+        # plt.ylabel('total rewards')
+        # plt.title('total rewards given per time_step')
+        # plt.show()
         plt.plot(np.arange(5001),cum_collision,"r-")
         plt.xlabel('Time Slot')
         plt.ylabel('cumulative collision')
@@ -407,13 +412,13 @@ for time_step in range(TIME_SLOTS):
         plt.plot(np.arange(5001),cum_r,"r-")
         plt.xlabel('Time Slot')
         plt.ylabel('Cumulative reward of all users')
-        #plt.title('Cumulative reward of all users')
+        plt.title('Cumulative reward of all users')
         plt.show()
         
         total_rewards = []
         cum_r = [0]
         cum_collision = [0]
-        saver.save(sess,'checkpoints/dqn_multi-user.ckpt')
+        saver.save(sess,'checkpoints/dqn_multi-user.ckpt')#保存模型
         #print time_step,loss , sum(reward) , Qs
     
     print ("*************************************************")

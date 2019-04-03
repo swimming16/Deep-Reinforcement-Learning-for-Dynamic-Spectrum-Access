@@ -1,6 +1,6 @@
 import tensorflow as tf
 import numpy as np
-class QNetwork:
+class QNetwork: #DQN
     def __init__(self, learning_rate=0.01, state_size=4, 
                  action_size=2, hidden_size=10, step_size=1 ,
                  name='QNetwork'):
@@ -74,13 +74,14 @@ class Memory():
         idx = np.random.choice(np.arange(len(self.buffer)-step_size), 
                                size=batch_size, replace=False)
         
-        res = []                       
+        res = []
                              
         for i in idx:
             temp_buffer = []  
             for j in range(step_size):
                 temp_buffer.append(self.buffer[i+j])
             res.append(temp_buffer)
+        print('res', res)
         return res    
         
 

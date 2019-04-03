@@ -50,12 +50,13 @@ class env_network:
             self.users_observation[i] = channel_alloc_frequency[self.users_action[i]]
             if self.users_action[i] ==0:   #accessing no channel
                 self.users_observation[i] = 0
-            if self.users_observation[i] == 1:
+            if self.users_observation[i] == 1:#ACK信号
                 reward[i] = 1
             obs.append((self.users_observation[i],reward[i]))
         residual_channel_capacity = channel_alloc_frequency[1:]
         residual_channel_capacity = 1-residual_channel_capacity
         obs.append(residual_channel_capacity)
+        #print(obs)
         return obs
 
 
