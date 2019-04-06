@@ -81,7 +81,7 @@ class Memory():
             for j in range(step_size):
                 temp_buffer.append(self.buffer[i+j])
             res.append(temp_buffer)
-        print('res', res)
+        #print('res', res)
         return res    
         
 

@@ -96,6 +96,7 @@ for ii in range(pretrain_length*step_size*5):
 def get_states(batch): 
     states = []
     for  i in batch:
+        print('batch is',batch)
         states_per_batch = []
         for step_i in i:
             states_per_step = []
@@ -116,7 +117,7 @@ def get_actions(batch):
                 actions_per_step.append(user_i)
             actions_per_batch.append(actions_per_step)
         actions.append(actions_per_batch)
-
+    print('actions',actions)
     return actions
 
 def get_rewards(batch):
@@ -252,13 +253,13 @@ for time_step in range(TIME_SLOTS):
    
 
     # Exploration
-    if explore_p > np.random.rand():
+    if explore_p > np.random.rand():#大于rand则随机选择
         #random action sampling
         action  = env.sample()
         print ("explored")
         
     # Exploitation
-    else:
+    else:#否则根据每个action的概率来选择action
         #initializing action vector
         action = np.zeros([NUM_USERS],dtype=np.int32)
 
@@ -278,17 +279,19 @@ for time_step in range(TIME_SLOTS):
             #print Qs
 
             #   Monte-carlo sampling from Q-values  (Boltzmann distribution)
+            #Q值的蒙特卡罗采样（玻尔兹曼分布）
             ##################################################################################
             prob1 = (1-alpha)*np.exp(beta*Qs)
 
-            # Normalizing probabilities of each action  with temperature (beta) 
+            # Normalizing probabilities of each action  with temperature (beta)
+            # 用beta归一化每个动作的概率
             prob = prob1/np.sum(np.exp(beta*Qs)) + alpha/(NUM_CHANNELS+1)
-            #print prob 
+            #print prob
 
             #   This equation is as given in the paper :
             #   Deep Multi-User Reinforcement Learning for  
             #   Distributed Dynamic Spectrum Access :
-            #   @Oshri Naparstek and Kobi Cohen (equation 12)
+            #   @Oshri Naparstek and Kobi Cohen (equation 11)
             ########################################################################################
 
             #  choosing action with max probability
@@ -354,22 +357,27 @@ for time_step in range(TIME_SLOTS):
 
     #  sampling a batch from memory buffer for training
     batch = memory.sample(batch_size,step_size)
+    print('batch',batch)
     
     #   matrix of rank 4
     #   shape [NUM_USERS,batch_size,step_size,state_size]
-    states = get_states_user(batch)      
+    states = get_states_user(batch)
+    print('states ',states)
   
     #   matrix of rank 3
     #   shape [NUM_USERS,batch_size,step_size]
     actions = get_actions_user(batch)
+    print('action ',action)
     
     #   matrix of rank 3
     #   shape [NUM_USERS,batch_size,step_size]
     rewards = get_rewards_user(batch)
+    print('rewards',rewards)
     
     #   matrix of rank 4
     #   shape [NUM_USERS,batch_size,step_size,state_size]
     next_states = get_next_states_user(batch)
+    print('next_states ',next_states)
     
     #   Converting [NUM_USERS,batch_size]  ->   [NUM_USERS * batch_size]  
     #   first two axis are converted into first axis
